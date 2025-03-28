@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: javaCodeTest
+  datasource:
+    url: jdbc:postgresql://localhost:5432/wallet_system
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  liquibase:
+    change-log: classpath:liquibase/db.changelog.yml
+    enabled: true
+    default-schema: wallet_system
