@@ -11,10 +11,10 @@ import ru.pugovkinv.javacodetest.dto.WalletDto;
 import ru.pugovkinv.javacodetest.exception.WalletNotFoundException;
 import ru.pugovkinv.javacodetest.service.WalletService;
 
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * Контроллер кошельков
@@ -42,7 +42,7 @@ public class WalletController {
     public ResponseEntity<?> getWalletById(@PathVariable UUID wallet_uuid) {
         Optional<Wallet> wallet = walletService.getWalletById(wallet_uuid);
         if (wallet.isEmpty()) {
-            return ResponseEntity.badRequest().body(new WalletNotFoundException("Кошелек с данным айди отсутствует в системе"));
+            return ResponseEntity.badRequest().body(new WalletNotFoundException("Кошелек с данным айди отсутствует в системе!"));
         }
         return new ResponseEntity<>(dtoMapper.toWalletDto(wallet.get()), HttpStatus.OK);
     }
