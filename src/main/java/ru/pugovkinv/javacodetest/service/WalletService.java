@@ -26,47 +26,60 @@ public class WalletService {
     private final WalletRepository walletRepository;
 
 
-
     /**
      * Получение кошелька по айди
+     *
      * @param id нужный айди
      * @return кошелек с данным айди
      */
-    public Optional<Wallet> getWalletById(UUID id){
+    public Optional<Wallet> getWalletById(UUID id) {
         return walletRepository.findById(id);
     }
 
     /**
      * Получение списка кошельков
+     *
      * @return список кошельков
      */
-    public List<Wallet> getAllWallet(){
+    public List<Wallet> getAllWallet() {
         return walletRepository.findAll();
     }
-    public void updateWallet(Wallet wallet){
+
+    /**
+     * Обновление данных о кошельке в БД
+     *
+     * @param wallet измененный кошелек
+     */
+    public void updateWallet(Wallet wallet) {
         walletRepository.save(wallet);
     }
 
+    /**
+     * Проведение операции депозита/вывода на кошелек
+     *
+     * @param operation данные операции
+     * @return возвращает кошелек, в негативном случае возвращает ошибку
+     */
     @Transactional
-    public Optional<?> changeAmount(Operation operation){
-        if (getWalletById(operation.getId()).isPresent()){
+    public Optional<?> changeAmount(Operation operation) {
+        if (getWalletById(operation.getId()).isPresent()) {
             Wallet wallet = getWalletById(operation.getId()).get();
-            if (operation.getOperationType().equals(OperationType.DEPOSIT)){
+            if (operation.getOperationType().equals(OperationType.DEPOSIT)) {
                 Long resultAmount = wallet.getAmount() + operation.getAmount();
                 wallet.setAmount(resultAmount);
                 updateWallet(wallet);
             }
-            if (operation.getOperationType().equals(OperationType.WITHDRAW)){
+            if (operation.getOperationType().equals(OperationType.WITHDRAW)) {
                 Long resultAmount = wallet.getAmount() - operation.getAmount();
-                if (resultAmount < 0){
+                if (resultAmount < 0) {
                     return Optional.of(new NotEnoughAmountException("На кошельке недостаточно средств для проведения данной операции!"));
-                }else {
+                } else {
                     wallet.setAmount(resultAmount);
                     updateWallet(wallet);
                 }
             }
             return Optional.of(wallet);
-        }else return Optional.of(new WalletNotFoundException("Кошелька с таким айди в системе не обнаружено!"));
+        } else return Optional.of(new WalletNotFoundException("Кошелька с таким айди в системе не обнаружено!"));
     }
 
 }

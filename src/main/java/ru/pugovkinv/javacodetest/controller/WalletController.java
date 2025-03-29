@@ -27,35 +27,51 @@ public class WalletController {
      * Сервис для работы с кошельками
      */
     private final WalletService walletService;
+    /**
+     * Преобразователь сущностей в Дто и обратно
+     */
     private final DtoMapper dtoMapper;
 
     /**
      * Получение кошелька по его айди
+     *
      * @param wallet_uuid айди кошелька
      * @return кошелек, если такого кошелька нет, то ошибка
      */
     @GetMapping("/wallets/{wallet_uuid}")
-    public ResponseEntity<?> getWalletById(@PathVariable UUID wallet_uuid){
+    public ResponseEntity<?> getWalletById(@PathVariable UUID wallet_uuid) {
         Optional<Wallet> wallet = walletService.getWalletById(wallet_uuid);
-        if (wallet.isEmpty()){
+        if (wallet.isEmpty()) {
             return ResponseEntity.badRequest().body(new WalletNotFoundException("Кошелек с данным айди отсутствует в системе"));
         }
         return new ResponseEntity<>(dtoMapper.toWalletDto(wallet.get()), HttpStatus.OK);
     }
+
+    /**
+     * Получение всех кошельков в БД
+     *
+     * @return список кошельков
+     */
     @GetMapping("/wallets")
-    public ResponseEntity<List<WalletDto>> getAllWallet(){
+    public ResponseEntity<List<WalletDto>> getAllWallet() {
         List<WalletDto> dtoWallets = walletService.getAllWallet().stream()
                 .map(dtoMapper::toWalletDto)
                 .toList();
         return new ResponseEntity<>(dtoWallets, HttpStatus.OK);
     }
 
+    /**
+     * Проведение операции о вводе/выводе средств
+     *
+     * @param operation данные об операции
+     * @return возвращает измененный кошелек или в негативном случае ошибка
+     */
     @PostMapping("/wallet")
-    public ResponseEntity<?> changeAmount(@RequestBody Operation operation){
+    public ResponseEntity<?> changeAmount(@RequestBody Operation operation) {
         Optional<?> result = walletService.changeAmount(operation);
-        if (result.get().getClass()== Wallet.class){
+        if (result.get().getClass() == Wallet.class) {
             return new ResponseEntity<>(dtoMapper.toWalletDto((Wallet) result.get()), HttpStatus.OK);
-        }else
+        } else
             return ResponseEntity.badRequest().body(result.get());
     }
 
